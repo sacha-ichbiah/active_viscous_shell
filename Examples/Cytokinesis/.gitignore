@@ -1,0 +1,12 @@
+eighthsphere.h5
+eighthsphere.msh
+eighthsphere.xdmf
+mesh.h5
+mesh.xdmf
+mesh_optimized.h5
+mesh_optimized.xdmf
+mesh_optimized.mesh
+mesh_optimized.msh
+mesh_optimized.sol
+mesh.mesh
+output/

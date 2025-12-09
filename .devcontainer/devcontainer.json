@@ -1,0 +1,26 @@
+{
+  "name": "Active Viscous Shell",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
+  "workspaceFolder": "/workspace",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-toolsai.jupyter",
+        "charliermarsh.ruff",
+        "oven.bun-vscode"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/opt/conda/envs/fenics/bin/python",
+        "editor.formatOnSave": true
+      }
+    }
+  },
+  "postCreateCommand": "echo '✅ Environment ready!' && python -c 'import dolfin; print(f\"FEniCS version: {dolfin.__version__}\")'",
+  "remoteUser": "vscode"
+}
