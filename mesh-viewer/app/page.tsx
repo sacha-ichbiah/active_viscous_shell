@@ -73,10 +73,6 @@ export default function Home() {
   const [isPlaying, setIsPlaying] = useState(false)
   const [playbackSpeed, setPlaybackSpeed] = useState(1)
   
-  // View options
-  const [autoRotate, setAutoRotate] = useState(true)
-  const [showWireframe, setShowWireframe] = useState(false)
-  const [colorMode, setColorMode] = useState<'height' | 'curvature' | 'solid'>('height')
   
   // Load mesh data
   useEffect(() => {
@@ -138,16 +134,16 @@ export default function Home() {
     loadData()
   }, [])
   
-  // Animation loop
+  // Animation loop (infinite)
   useEffect(() => {
     if (!isPlaying || !data) return
     
     const interval = setInterval(() => {
       setCurrentIndex(prev => {
         const next = prev + 1
+        // Loop back to start when reaching end
         if (next >= data.timesteps.length) {
-          setIsPlaying(false)
-          return prev
+          return 0
         }
         return next
       })
@@ -177,12 +173,6 @@ export default function Home() {
           break
         case 'End':
           setCurrentIndex(data.timesteps.length - 1)
-          break
-        case 'r':
-          setAutoRotate(p => !p)
-          break
-        case 'w':
-          setShowWireframe(p => !p)
           break
       }
     }
@@ -227,35 +217,11 @@ export default function Home() {
         </div>
       </div>
       
-      {/* Stats overlay */}
-      <div className="absolute top-24 right-6 z-10 bg-black/40 backdrop-blur-sm rounded-lg p-4 text-white/80 font-mono text-sm">
-        <div className="space-y-1">
-          <div className="flex justify-between gap-8">
-            <span className="text-white/50">Vertices:</span>
-            <span className="text-cyan-400">{currentTimestep.points.length.toLocaleString()}</span>
-          </div>
-          <div className="flex justify-between gap-8">
-            <span className="text-white/50">Triangles:</span>
-            <span className="text-cyan-400">{currentTimestep.triangles.length.toLocaleString()}</span>
-          </div>
-        </div>
-      </div>
-      
-      {/* Keyboard hints */}
-      <div className="absolute top-24 left-6 z-10 bg-black/40 backdrop-blur-sm rounded-lg p-3 text-white/50 text-xs font-mono space-y-1">
-        <div><kbd className="px-1.5 py-0.5 bg-white/10 rounded">Space</kbd> Play/Pause</div>
-        <div><kbd className="px-1.5 py-0.5 bg-white/10 rounded">←</kbd> <kbd className="px-1.5 py-0.5 bg-white/10 rounded">→</kbd> Step</div>
-        <div><kbd className="px-1.5 py-0.5 bg-white/10 rounded">R</kbd> Toggle Rotate</div>
-        <div><kbd className="px-1.5 py-0.5 bg-white/10 rounded">W</kbd> Wireframe</div>
-      </div>
       
       {/* 3D Viewer */}
       <MeshViewer 
         data={data}
         currentIndex={currentIndex}
-        autoRotate={autoRotate}
-        showWireframe={showWireframe}
-        colorMode={colorMode}
       />
       
       {/* Controls */}
@@ -265,15 +231,9 @@ export default function Home() {
         currentTime={currentTimestep.time}
         timeRange={data.metadata.time_range}
         isPlaying={isPlaying}
-        autoRotate={autoRotate}
-        showWireframe={showWireframe}
-        colorMode={colorMode}
         playbackSpeed={playbackSpeed}
         onIndexChange={setCurrentIndex}
         onPlayToggle={() => setIsPlaying(p => !p)}
-        onAutoRotateToggle={() => setAutoRotate(p => !p)}
-        onWireframeToggle={() => setShowWireframe(p => !p)}
-        onColorModeChange={setColorMode}
         onPlaybackSpeedChange={setPlaybackSpeed}
       />
     </main>

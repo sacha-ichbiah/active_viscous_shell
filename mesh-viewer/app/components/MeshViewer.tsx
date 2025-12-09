@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useMemo } from 'react'
-import { Canvas, useFrame, useThree } from '@react-three/fiber'
+import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
 import * as THREE from 'three'
 
@@ -120,44 +120,16 @@ function WireframeMesh({ timestep }: { timestep: TimestepData }) {
     return (
         <lineSegments>
             <wireframeGeometry args={[geometry]} />
-            <lineBasicMaterial color="#000000" opacity={0.2} transparent />
+            <lineBasicMaterial color="#22d3ee" />
         </lineSegments>
     )
 }
 
-function RotatingGroup({
-    children,
-    autoRotate,
-    rotationSpeed
-}: {
-    children: React.ReactNode
-    autoRotate: boolean
-    rotationSpeed: number
-}) {
-    const groupRef = useRef<THREE.Group>(null)
-
-    useFrame((_, delta) => {
-        if (autoRotate && groupRef.current) {
-            groupRef.current.rotation.y += delta * rotationSpeed
-        }
-    })
-
-    return <group ref={groupRef}>{children}</group>
-}
-
 function Scene({
-    timestep,
-    autoRotate,
-    showWireframe,
-    colorMode
+    timestep
 }: {
     timestep: TimestepData
-    autoRotate: boolean
-    showWireframe: boolean
-    colorMode: 'height' | 'curvature' | 'solid'
 }) {
-    // Debug: log mesh info
-    console.log('Rendering mesh with', timestep.points.length, 'points and', timestep.triangles.length, 'triangles')
 
     return (
         <>
@@ -168,16 +140,9 @@ function Scene({
             <directionalLight position={[-5, 3, -5]} intensity={0.5} />
             <pointLight position={[0, 0, 3]} intensity={0.5} color="#ffffff" />
 
-            <RotatingGroup autoRotate={autoRotate} rotationSpeed={0.3}>
-                <CellMesh timestep={timestep} colorMode={colorMode} />
-                {showWireframe && <WireframeMesh timestep={timestep} />}
-
-                {/* Debug: small sphere at origin to verify rendering works */}
-                <mesh position={[0, 0, 0]}>
-                    <sphereGeometry args={[0.05, 16, 16]} />
-                    <meshBasicMaterial color="red" />
-                </mesh>
-            </RotatingGroup>
+            <group rotation={[Math.PI / 2, 0, 0]}>
+                <WireframeMesh timestep={timestep} />
+            </group>
 
             <OrbitControls
                 enableDamping
@@ -186,25 +151,16 @@ function Scene({
                 maxDistance={10}
                 target={[0, 0, 0]}
             />
-
-            {/* Axes helper for debugging */}
-            <axesHelper args={[2]} />
         </>
     )
 }
 
 export default function MeshViewer({
     data,
-    currentIndex,
-    autoRotate,
-    showWireframe,
-    colorMode
+    currentIndex
 }: {
     data: MeshData
     currentIndex: number
-    autoRotate: boolean
-    showWireframe: boolean
-    colorMode: 'height' | 'curvature' | 'solid'
 }) {
     const timestep = data.timesteps[currentIndex]
 
@@ -220,7 +176,7 @@ export default function MeshViewer({
             }}
         >
             <Canvas
-                camera={{ position: [3, 2, 3], fov: 45, near: 0.1, far: 100 }}
+                camera={{ position: [0, 0, 4], fov: 45, near: 0.1, far: 100 }}
                 gl={{
                     antialias: true,
                     alpha: false,
@@ -233,12 +189,7 @@ export default function MeshViewer({
                     console.log('Canvas created successfully')
                 }}
             >
-                <Scene
-                    timestep={timestep}
-                    autoRotate={autoRotate}
-                    showWireframe={showWireframe}
-                    colorMode={colorMode}
-                />
+                <Scene timestep={timestep} />
             </Canvas>
         </div>
     )
