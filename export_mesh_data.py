@@ -14,6 +14,10 @@ h5_file = output_dir / "eighthsphere_results.h5"
 export_dir = Path("/workspace/mesh-viewer/public/data")
 export_dir.mkdir(parents=True, exist_ok=True)
 
+# Directory for .npy files
+npy_export_dir = output_dir / "mesh_npy"
+npy_export_dir.mkdir(parents=True, exist_ok=True)
+
 print(f"Reading mesh data from: {h5_file}")
 
 # Parse XDMF to get time values and mesh indices
@@ -97,6 +101,12 @@ for i, idx in enumerate(selected):
         'triangles': all_triangles
     })
     
+    # Save mesh as .npy files
+    verts_array = np.array(all_points)
+    faces_array = np.array(all_triangles)
+    np.save(npy_export_dir / f"mesh_{i:04d}_verts.npy", verts_array)
+    np.save(npy_export_dir / f"mesh_{i:04d}_faces.npy", faces_array)
+    
     print(f"  {i+1}/{len(selected)}: t={t:.2f}s ({len(all_points)} pts)")
 
 h5.close()
@@ -106,6 +116,9 @@ json_path = export_dir / "mesh_data.json"
 with open(json_path, 'w') as f:
     json.dump(mesh_data, f)
 
-print(f"\nExported to: {json_path}")
-print(f"File size: {json_path.stat().st_size / 1024 / 1024:.1f} MB")
+print(f"\nExported JSON to: {json_path}")
+print(f"JSON file size: {json_path.stat().st_size / 1024 / 1024:.1f} MB")
+print(f"Exported .npy files to: {npy_export_dir}")
+print(f"  - {len(selected)} verts files: mesh_XXXX_verts.npy")
+print(f"  - {len(selected)} faces files: mesh_XXXX_faces.npy")
 
